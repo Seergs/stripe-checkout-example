@@ -1,5 +1,6 @@
 import theme from "../theme/theme";
 import styled from "styled-components";
+import Form from "../components/Form";
 
 const { colors } = theme;
 
@@ -12,6 +13,7 @@ export default function Home() {
   return (
     <div>
       <Title>Checkout</Title>
+      <Form />
     </div>
   );
 }

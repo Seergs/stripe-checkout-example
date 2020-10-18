@@ -1,0 +1,70 @@
+import React from "react";
+import styled from "styled-components";
+import theme from "../theme/theme";
+import mixins from "../theme/mixins";
+const { colors } = theme;
+const { flex, flexColumn, flexRow, alignCenter } = mixins;
+
+const Container = styled.div`
+  ${flex};
+  ${flexColumn};
+  margin-bottom: 1rem;
+  width: ${({ type }) =>
+    type === "email" ? "400px" : type === "name" ? "200px" : "150px"};
+`;
+
+const InputContainer = styled.div`
+  background-color: white;
+  ${flex};
+  ${flexRow};
+  ${alignCenter};
+  padding: 0 8px;
+
+  svg {
+    fill: ${colors.iconFill};
+    margin-right: 8px;
+  }
+`;
+
+const Label = styled.label`
+  color: ${colors.darkGray};
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+`;
+
+const Field = styled.input`
+  height: 40px;
+  border: 0;
+  border-radius: 4px;
+  width: 100%;
+  &::placeholder {
+    color: ${colors.lightestGray};
+  }
+`;
+
+const Error = styled.span``;
+
+export default function Input({ children, type }) {
+  return (
+    <Container type={type}>
+      {React.Children.map(children, (child) => React.cloneElement(child))}
+    </Container>
+  );
+}
+
+Input.Label = function ({ children }) {
+  return <Label>{children}</Label>;
+};
+
+Input.Field = function ({ placeholder, icon }) {
+  return (
+    <InputContainer>
+      {icon}
+      <Field placeholder={placeholder} />
+    </InputContainer>
+  );
+};
+
+Input.Error = function ({ children }) {
+  return <Error>{children}</Error>;
+};
