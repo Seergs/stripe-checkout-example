@@ -18,11 +18,13 @@ const InputContainer = styled.div`
   ${flex};
   ${flexRow};
   ${alignCenter};
-  padding: 0 8px;
+  padding: 0 14px;
+  box-shadow: 0px 1px 3px 0px rgba(230, 235, 241, 0.25);
 
   svg {
-    fill: ${colors.iconFill};
-    margin-right: 8px;
+    fill: black;
+    filter: opacity(0.2);
+    margin-right: 10px;
   }
 `;
 
@@ -37,6 +39,7 @@ const Field = styled.input`
   border: 0;
   border-radius: 4px;
   width: 100%;
+  font-size: 15px;
   &::placeholder {
     color: ${colors.lightestGray};
   }
