@@ -58,11 +58,18 @@ const initialState = {
 
 const useCheckout = () => {
   const [state, dispatch] = useReducer(paymentReducer, initialState);
+  const isPaymentSuccess = state.status === "paymentResolved";
+  const isPaymentError =
+    state.status === "paymentRejected" ||
+    state.status === "intentRejected" ||
+    state.status === "inputRejected";
+  const isLoading =
+    state.status === "loadingIntent" || state.status === "loadingPayment";
 
   const stripe = useStripe();
   const elements = useElements();
 
-  const validateData = ({ name, email, amount }) => {
+  const validateData = ({ name, email, amount, description }) => {
     if (!email.trim().length) {
       return "El email no puede estar vacío";
     }
@@ -74,6 +81,9 @@ const useCheckout = () => {
     if (isNaN(amount) || amount < 10)
       return "La cantidad mínima a pagar son $10 MXN";
 
+    if (!description.trim().length) {
+      return "La descripción no puede estar vacía";
+    }
     return null;
   };
 
@@ -100,6 +110,12 @@ const useCheckout = () => {
     e.preventDefault();
     dispatch({ type: "processing" });
 
+    const inputError = validateData(data);
+
+    if (inputError) {
+      dispatch({ type: "inputError", payload: inputError });
+      return;
+    }
     const clientSecret = await createPaymentIntent(data);
     if (!clientSecret) {
       dispatch({
@@ -107,13 +123,6 @@ const useCheckout = () => {
         payload: "Algo salió mal, intenta de nuevo más tarde",
       });
 
-      return;
-    }
-
-    const inputError = validateData(data);
-
-    if (inputError) {
-      dispatch({ type: "inputError", payload: inputError });
       return;
     }
 
@@ -134,7 +143,14 @@ const useCheckout = () => {
     }
   };
 
-  return { ...state, dispatch, createPayment };
+  return {
+    ...state,
+    dispatch,
+    createPayment,
+    isPaymentSuccess,
+    isPaymentError,
+    isLoading,
+  };
 };
 
 export default useCheckout;

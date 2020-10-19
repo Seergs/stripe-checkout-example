@@ -2,7 +2,7 @@ import GlobalStyles from "../theme/GlobalStyles";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 
-const PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_STRIPE_KEY;
+const PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_STRIPE_KEY_TEST;
 
 const stripePromise = loadStripe(PUBLISHABLE_KEY);
 

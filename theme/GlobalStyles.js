@@ -16,7 +16,8 @@ const GlobalStyles = createGlobalStyle`
     *,*::after,*::before{
         margin:0;
         box-sizing: border-box;
-        font-family: 'Asap', sans-serif;
+        font-family: 'Roboto', sans-serif;
+        font-smooth: antialiased;
     }
 `;
 

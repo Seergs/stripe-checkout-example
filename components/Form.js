@@ -3,7 +3,7 @@ import styled from "styled-components";
 import theme from "../theme/theme";
 import Input from "./Input";
 import mixins from "../theme/mixins";
-import { FaEnvelope, FaUser, FaDollarSign } from "react-icons/fa";
+import { FaEnvelope, FaUser, FaDollarSign, FaReceipt } from "react-icons/fa";
 import { CardElement } from "@stripe/react-stripe-js";
 import useCheckout from "../hooks/useCheckout";
 import useFormValues from "../hooks/useFormValues";
@@ -20,6 +20,10 @@ const FormWrapper = styled.form`
     border-radius: 4px;
     width: 500px;
     margin: 10px 0 1rem 0;
+
+    &--focus {
+      outline: 2px solid ${colors.outline};
+    }
   }
 `;
 
@@ -38,6 +42,19 @@ const Button = styled.button`
   border-radius: 4px;
   font-weight: 600;
   cursor: pointer;
+
+  &:hover {
+    filter: brightness(1.1);
+  }
+
+  &:disabled {
+    filter: opacity(0.5);
+    cursor: not-allowed;
+  }
+
+  &:focus {
+    outline: 2px solid ${colors.outline};
+  }
 `;
 
 const Row = styled.div`
@@ -47,21 +64,27 @@ const Row = styled.div`
 `;
 
 export default function Form() {
-  const { status, createPayment, error } = useCheckout();
+  const {
+    createPayment,
+    error,
+    isLoading,
+    isPaymentSuccess,
+    isPaymentError,
+  } = useCheckout();
   const { values, handleChange } = useFormValues({
     name: "",
     email: "",
-    amount: 0,
+    amount: 10,
+    description: "",
   });
 
   useEffect(() => {
-    if (error) cogoToast.error(error);
-  }, [error]);
+    if (isPaymentError) cogoToast.error(error);
+  }, [error, isPaymentError]);
 
   useEffect(() => {
-    if (status === "paymentResolved")
-      cogoToast.success("Cobro realizado con éxito");
-  }, [status]);
+    if (isPaymentSuccess) cogoToast.success("Cobro realizado con éxito");
+  }, [isPaymentSuccess]);
 
   return (
     <FormWrapper onSubmit={(e) => createPayment({ e, data: values })}>
@@ -97,7 +120,18 @@ export default function Form() {
           handleChange={handleChange}
         />
       </Input>
-      <Button>Complete payment</Button>
+      <Input type="description">
+        <Input.Label>Descripción</Input.Label>
+        <Input.Field
+          placeholder="Descripción"
+          icon={<FaReceipt />}
+          value={values.description}
+          handleChange={handleChange}
+        />
+      </Input>
+      <Button disabled={isLoading}>
+        {isLoading ? "Processing" : "Complete payment"}
+      </Button>
     </FormWrapper>
   );
 }

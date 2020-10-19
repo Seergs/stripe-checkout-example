@@ -10,7 +10,13 @@ const Container = styled.div`
   ${flexColumn};
   margin-bottom: 1rem;
   width: ${({ type }) =>
-    type === "email" ? "400px" : type === "name" ? "200px" : "150px"};
+    type === "email"
+      ? "400px"
+      : type === "name"
+      ? "300px"
+      : type === "amount"
+      ? "150px"
+      : "800px"};
 `;
 
 const InputContainer = styled.div`
@@ -25,6 +31,10 @@ const InputContainer = styled.div`
     fill: black;
     filter: opacity(0.2);
     margin-right: 10px;
+  }
+
+  &:focus-within {
+    outline: 2px solid ${colors.outline};
   }
 `;
 
@@ -42,6 +52,10 @@ const Field = styled.input`
   font-size: 15px;
   &::placeholder {
     color: ${colors.lightestGray};
+  }
+
+  &:focus {
+    outline: none;
   }
 `;
 
@@ -66,7 +80,13 @@ Input.Field = function ({ placeholder, icon, type, value, handleChange }) {
       <Field
         placeholder={placeholder}
         name={type}
-        type={type === "email" ? "email" : type === "name" ? "text" : "number"}
+        type={
+          type === "email"
+            ? "email"
+            : type === "name" || type === "description"
+            ? "text"
+            : "number"
+        }
         min={type === "amount" ? "10" : null}
         value={value}
         onChange={handleChange}

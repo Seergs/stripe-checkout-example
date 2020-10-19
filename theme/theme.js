@@ -6,6 +6,7 @@ const theme = {
     lightestGray: "#A9B7C4",
     iconFill: "#CBBCBC",
     background: "#F7F8F9",
+    outline: "#AEC8EF",
   },
 };
 
