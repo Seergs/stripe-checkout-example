@@ -3,14 +3,18 @@ const API_SECRET = process.env.STRIPE_API_SECRET;
 
 const stripe = new Stripe(API_SECRET);
 
+const calculateAmount = (current) => current * 100;
+
 export default async (req, res) => {
-  const { method } = req;
+  const { method, body } = req;
 
   switch (method) {
     case "POST":
       const paymentIntent = await stripe.paymentIntents.create({
-        amount: 1000,
+        amount: calculateAmount(body.amount),
         currency: "mxn",
+        receipt_email: body.email,
+        description: "Pago realizado con éxito",
         metadata: { integration_check: "accept_a_payment" },
       });
 

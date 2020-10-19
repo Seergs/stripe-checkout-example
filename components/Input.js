@@ -45,8 +45,6 @@ const Field = styled.input`
   }
 `;
 
-const Error = styled.span``;
-
 export default function Input({ children, type }) {
   return (
     <Container type={type}>
@@ -69,14 +67,10 @@ Input.Field = function ({ placeholder, icon, type, value, handleChange }) {
         placeholder={placeholder}
         name={type}
         type={type === "email" ? "email" : type === "name" ? "text" : "number"}
-        min={type === "amount" ? "0" : null}
+        min={type === "amount" ? "10" : null}
         value={value}
         onChange={handleChange}
       />
     </InputContainer>
   );
-};
-
-Input.Error = function ({ children }) {
-  return <Error>{children}</Error>;
 };

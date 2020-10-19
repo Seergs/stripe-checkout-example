@@ -47,25 +47,24 @@ const Row = styled.div`
 `;
 
 export default function Form() {
-  const { createPaymentIntent, status, createPayment, error } = useCheckout();
+  const { status, createPayment, error } = useCheckout();
   const { values, handleChange } = useFormValues({
     name: "",
     email: "",
     amount: 0,
   });
 
-  console.log(values);
-
-  useEffect(() => {
-    createPaymentIntent();
-  }, []);
-
   useEffect(() => {
     if (error) cogoToast.error(error);
   }, [error]);
 
+  useEffect(() => {
+    if (status === "paymentResolved")
+      cogoToast.success("Cobro realizado con éxito");
+  }, [status]);
+
   return (
-    <FormWrapper onSubmit={createPayment}>
+    <FormWrapper onSubmit={(e) => createPayment({ e, data: values })}>
       <Title>Llena la siguiente información</Title>
       <Row>
         <Input type="email">

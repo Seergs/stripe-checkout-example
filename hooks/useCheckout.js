@@ -14,7 +14,6 @@ function paymentReducer(state, action) {
         ...state,
         status: "intentResolved",
         error: null,
-        clientSecret: action.payload,
       };
     case "intentError":
       return {
@@ -54,8 +53,7 @@ function paymentReducer(state, action) {
 
 const initialState = {
   status: "idle",
-  errors: null,
-  clientSecret: null,
+  error: null,
 };
 
 const useCheckout = () => {
@@ -65,41 +63,52 @@ const useCheckout = () => {
   const elements = useElements();
 
   const validateData = ({ name, email, amount }) => {
-    if (!name.trim().lenght) {
-      return "El nombre no puede esta vacío";
-    }
-
-    if (!email.trim().lenght) {
+    if (!email.trim().length) {
       return "El email no puede estar vacío";
     }
 
-    if (isNaN(amount) || amount < 0)
-      return "La cantidad no es un número mayor que 0";
+    if (!name.trim().length) {
+      return "El nombre no puede esta vacío";
+    }
+
+    if (isNaN(amount) || amount < 10)
+      return "La cantidad mínima a pagar son $10 MXN";
 
     return null;
   };
 
-  async function createPaymentIntent() {
+  async function createPaymentIntent(paymentData) {
     try {
       dispatch({ type: "loadingIntent" });
       const result = await fetch("/api/payment", {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(paymentData),
       });
 
       const data = await result.json();
 
-      dispatch({ type: "intentSuccess", payload: data.clientSecret });
+      return data.clientSecret;
     } catch (e) {
-      dispatch({
-        type: "intentError",
-        payload: "Algo salió mal, intenta de nuevo más tarde",
-      });
+      return null;
     }
   }
 
   const createPayment = async ({ e, data }) => {
     e.preventDefault();
     dispatch({ type: "processing" });
+
+    const clientSecret = await createPaymentIntent(data);
+    if (!clientSecret) {
+      dispatch({
+        type: "intentError",
+        payload: "Algo salió mal, intenta de nuevo más tarde",
+      });
+
+      return;
+    }
 
     const inputError = validateData(data);
 
@@ -108,9 +117,13 @@ const useCheckout = () => {
       return;
     }
 
-    const payload = await stripe.confirmCardPayment(state.clientSecret, {
+    const payload = await stripe.confirmCardPayment(clientSecret, {
       payment_method: {
         card: elements.getElement(CardElement),
+        billing_details: {
+          name: data.name,
+          email: data.email,
+        },
       },
     });
 
@@ -121,7 +134,7 @@ const useCheckout = () => {
     }
   };
 
-  return { ...state, dispatch, createPaymentIntent, createPayment };
+  return { ...state, dispatch, createPayment };
 };
 
 export default useCheckout;
