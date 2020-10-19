@@ -22,6 +22,12 @@ function paymentReducer(state, action) {
         status: "intentRejected",
         error: action.payload,
       };
+    case "inputError":
+      return {
+        ...state,
+        status: "inputRejected",
+        error: action.payload,
+      };
     case "processing":
       return {
         ...state,
@@ -48,7 +54,7 @@ function paymentReducer(state, action) {
 
 const initialState = {
   status: "idle",
-  error: null,
+  errors: null,
   clientSecret: null,
 };
 
@@ -57,6 +63,22 @@ const useCheckout = () => {
 
   const stripe = useStripe();
   const elements = useElements();
+
+  const validateData = ({ name, email, amount }) => {
+    if (!name.trim().lenght) {
+      return "El nombre no puede esta vacío";
+    }
+
+    if (!email.trim().lenght) {
+      return "El email no puede estar vacío";
+    }
+
+    if (isNaN(amount) || amount < 0)
+      return "La cantidad no es un número mayor que 0";
+
+    return null;
+  };
+
   async function createPaymentIntent() {
     try {
       dispatch({ type: "loadingIntent" });
@@ -68,13 +90,23 @@ const useCheckout = () => {
 
       dispatch({ type: "intentSuccess", payload: data.clientSecret });
     } catch (e) {
-      dispatch({ type: "intentError", payload: e.message });
+      dispatch({
+        type: "intentError",
+        payload: "Algo salió mal, intenta de nuevo más tarde",
+      });
     }
   }
 
-  const createPayment = async (e) => {
+  const createPayment = async ({ e, data }) => {
     e.preventDefault();
     dispatch({ type: "processing" });
+
+    const inputError = validateData(data);
+
+    if (inputError) {
+      dispatch({ type: "inputError", payload: inputError });
+      return;
+    }
 
     const payload = await stripe.confirmCardPayment(state.clientSecret, {
       payment_method: {

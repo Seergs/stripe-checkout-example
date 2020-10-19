@@ -50,7 +50,9 @@ const Error = styled.span``;
 export default function Input({ children, type }) {
   return (
     <Container type={type}>
-      {React.Children.map(children, (child) => React.cloneElement(child))}
+      {React.Children.map(children, (child) =>
+        React.cloneElement(child, { type })
+      )}
     </Container>
   );
 }
@@ -59,11 +61,18 @@ Input.Label = function ({ children }) {
   return <Label>{children}</Label>;
 };
 
-Input.Field = function ({ placeholder, icon }) {
+Input.Field = function ({ placeholder, icon, type, value, handleChange }) {
   return (
     <InputContainer>
       {icon}
-      <Field placeholder={placeholder} />
+      <Field
+        placeholder={placeholder}
+        name={type}
+        type={type === "email" ? "email" : type === "name" ? "text" : "number"}
+        min={type === "amount" ? "0" : null}
+        value={value}
+        onChange={handleChange}
+      />
     </InputContainer>
   );
 };

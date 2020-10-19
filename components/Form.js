@@ -6,6 +6,8 @@ import mixins from "../theme/mixins";
 import { FaEnvelope, FaUser, FaDollarSign } from "react-icons/fa";
 import { CardElement } from "@stripe/react-stripe-js";
 import useCheckout from "../hooks/useCheckout";
+import useFormValues from "../hooks/useFormValues";
+import cogoToast from "cogo-toast";
 
 const { colors } = theme;
 const { flex, flexRow } = mixins;
@@ -45,12 +47,22 @@ const Row = styled.div`
 `;
 
 export default function Form() {
-  const { createPaymentIntent, status, createPayment } = useCheckout();
-  console.log(status);
+  const { createPaymentIntent, status, createPayment, error } = useCheckout();
+  const { values, handleChange } = useFormValues({
+    name: "",
+    email: "",
+    amount: 0,
+  });
+
+  console.log(values);
 
   useEffect(() => {
     createPaymentIntent();
   }, []);
+
+  useEffect(() => {
+    if (error) cogoToast.error(error);
+  }, [error]);
 
   return (
     <FormWrapper onSubmit={createPayment}>
@@ -61,18 +73,30 @@ export default function Form() {
           <Input.Field
             placeholder="example@example.com"
             icon={<FaEnvelope />}
+            value={values.email}
+            handleChange={handleChange}
           />
         </Input>
         <Input type="name">
           <Input.Label>Nombre</Input.Label>
-          <Input.Field placeholder="Jane Doe" icon={<FaUser />} />
+          <Input.Field
+            placeholder="Jane Doe"
+            icon={<FaUser />}
+            value={values.name}
+            handleChange={handleChange}
+          />
         </Input>
       </Row>
       <Input.Label>Tarjeta</Input.Label>
       <CardElement id="card-element" options={CARD_ELEMENT_OPTIONS} />
       <Input type="amount">
         <Input.Label>Cantidad</Input.Label>
-        <Input.Field placeholder="0.0 MXN" icon={<FaDollarSign />} />
+        <Input.Field
+          placeholder="0.0 MXN"
+          icon={<FaDollarSign />}
+          value={values.amount}
+          handleChange={handleChange}
+        />
       </Input>
       <Button>Complete payment</Button>
     </FormWrapper>
