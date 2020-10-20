@@ -1,5 +1,6 @@
 import { useReducer } from "react";
 import { useElements, useStripe, CardElement } from "@stripe/react-stripe-js";
+import { formatDate, formatTime } from "../utils/date";
 
 function paymentReducer(state, action) {
   switch (action.type) {
@@ -8,6 +9,7 @@ function paymentReducer(state, action) {
         ...state,
         status: "loadingIntent",
         error: null,
+        payment: null,
       };
     case "intentSuccess":
       return {
@@ -20,24 +22,28 @@ function paymentReducer(state, action) {
         ...state,
         status: "intentRejected",
         error: action.payload,
+        payment: null,
       };
     case "inputError":
       return {
         ...state,
         status: "inputRejected",
         error: action.payload,
+        payment: null,
       };
     case "processing":
       return {
         ...state,
         status: "loadingPayment",
         error: null,
+        paymentId: null,
       };
     case "paymentError":
       return {
         ...state,
         status: "paymentRejected",
         error: action.payload,
+        payment: null,
       };
 
     case "paymentSuccess":
@@ -45,6 +51,7 @@ function paymentReducer(state, action) {
         ...state,
         status: "paymentResolved",
         error: null,
+        payment: action.payload,
       };
     default:
       throw new Error(`Unhandled case for payment`);
@@ -54,6 +61,7 @@ function paymentReducer(state, action) {
 const initialState = {
   status: "idle",
   error: null,
+  payment: null,
 };
 
 const useCheckout = () => {
@@ -139,7 +147,14 @@ const useCheckout = () => {
     if (payload.error) {
       dispatch({ type: "paymentError", payload: payload.error.message });
     } else {
-      dispatch({ type: "paymentSuccess" });
+      dispatch({
+        type: "paymentSuccess",
+        payload: {
+          id: payload.paymentIntent.id,
+          date: formatDate(Date(payload.paymentIntent.created)),
+          time: formatTime(Date(payload.paymentIntent.created)),
+        },
+      });
     }
   };
 

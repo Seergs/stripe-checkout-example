@@ -13,6 +13,12 @@ const mixins = {
   alignCenter: css`
     align-items: center;
   `,
+  justifyCenter: css`
+    justify-content: center;
+  `,
+  justifyBetween: css`
+    justify-content: space-between;
+  `,
 };
 
 export default mixins;

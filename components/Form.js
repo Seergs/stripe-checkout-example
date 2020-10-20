@@ -8,6 +8,7 @@ import { CardElement } from "@stripe/react-stripe-js";
 import useCheckout from "../hooks/useCheckout";
 import useFormValues from "../hooks/useFormValues";
 import cogoToast from "cogo-toast";
+import Modal from "./Modal";
 
 const { colors } = theme;
 const { flex, flexRow } = mixins;
@@ -63,13 +64,14 @@ const Row = styled.div`
   gap: 1rem;
 `;
 
-export default function Form() {
+export default function Form({ onPaymentSuccess }) {
   const {
     createPayment,
     error,
     isLoading,
     isPaymentSuccess,
     isPaymentError,
+    payment,
   } = useCheckout();
   const { values, handleChange } = useFormValues({
     name: "",
@@ -83,56 +85,58 @@ export default function Form() {
   }, [error, isPaymentError]);
 
   useEffect(() => {
-    if (isPaymentSuccess) cogoToast.success("Cobro realizado con éxito");
+    if (isPaymentSuccess) onPaymentSuccess({ values, payment });
   }, [isPaymentSuccess]);
 
   return (
-    <FormWrapper onSubmit={(e) => createPayment({ e, data: values })}>
-      <Title>Llena la siguiente información</Title>
-      <Row>
-        <Input type="email">
-          <Input.Label>Correo electrónico</Input.Label>
+    <>
+      <FormWrapper onSubmit={(e) => createPayment({ e, data: values })}>
+        <Title>Llena la siguiente información</Title>
+        <Row>
+          <Input type="email">
+            <Input.Label>Correo electrónico</Input.Label>
+            <Input.Field
+              placeholder="example@example.com"
+              icon={<FaEnvelope />}
+              value={values.email}
+              handleChange={handleChange}
+            />
+          </Input>
+          <Input type="name">
+            <Input.Label>Nombre</Input.Label>
+            <Input.Field
+              placeholder="Jane Doe"
+              icon={<FaUser />}
+              value={values.name}
+              handleChange={handleChange}
+            />
+          </Input>
+        </Row>
+        <Input.Label>Tarjeta</Input.Label>
+        <CardElement id="card-element" options={CARD_ELEMENT_OPTIONS} />
+        <Input type="amount">
+          <Input.Label>Cantidad</Input.Label>
           <Input.Field
-            placeholder="example@example.com"
-            icon={<FaEnvelope />}
-            value={values.email}
+            placeholder="0.0 MXN"
+            icon={<FaDollarSign />}
+            value={values.amount}
             handleChange={handleChange}
           />
         </Input>
-        <Input type="name">
-          <Input.Label>Nombre</Input.Label>
+        <Input type="description">
+          <Input.Label>Descripción</Input.Label>
           <Input.Field
-            placeholder="Jane Doe"
-            icon={<FaUser />}
-            value={values.name}
+            placeholder="Descripción"
+            icon={<FaReceipt />}
+            value={values.description}
             handleChange={handleChange}
           />
         </Input>
-      </Row>
-      <Input.Label>Tarjeta</Input.Label>
-      <CardElement id="card-element" options={CARD_ELEMENT_OPTIONS} />
-      <Input type="amount">
-        <Input.Label>Cantidad</Input.Label>
-        <Input.Field
-          placeholder="0.0 MXN"
-          icon={<FaDollarSign />}
-          value={values.amount}
-          handleChange={handleChange}
-        />
-      </Input>
-      <Input type="description">
-        <Input.Label>Descripción</Input.Label>
-        <Input.Field
-          placeholder="Descripción"
-          icon={<FaReceipt />}
-          value={values.description}
-          handleChange={handleChange}
-        />
-      </Input>
-      <Button disabled={isLoading}>
-        {isLoading ? "Processing" : "Complete payment"}
-      </Button>
-    </FormWrapper>
+        <Button disabled={isLoading}>
+          {isLoading ? "Processing" : "Complete payment"}
+        </Button>
+      </FormWrapper>
+    </>
   );
 }
 
