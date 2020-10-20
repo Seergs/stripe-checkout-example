@@ -1,13 +1,16 @@
-import styled from "styled-components";
+import {useRef} from 'react'
+import styled , {css} from "styled-components";
 import { AnimatePresence, motion } from "framer-motion";
 import { FaTimes } from "react-icons/fa";
 import mixins from "../theme/mixins";
 import theme from "../theme/theme";
+import useClickOutside from '../hooks/useClickOutside'
+
 const { colors } = theme;
 
 const { flex, flexColumn } = mixins;
 
-const Overlay = styled.div`
+const Overlay = styled(motion.div)`
   position: absolute;
   top: 0;
   bottom: 0;
@@ -16,16 +19,19 @@ const Overlay = styled.div`
   background-color: rgba(0, 0, 0, 0.1);
 `;
 
-const Content = styled.div`
-  width: 400px;
-  height: 600px;
-  margin: 1rem auto;
-  padding: 1rem;
-  background-color: white;
-  font-family: "Consolas";
-  ${flex};
-  ${flexColumn};
-  border-radius: 4px;
+const Content = styled(motion.div)`
+  ${props => css`
+    width: ${props.$width};
+    height: ${props.height};
+    margin: 1rem auto;
+    padding: 1rem;
+    background-color: white;
+    font-family: "Consolas";
+    ${flex};
+    ${flexColumn};
+    border-radius: 4px;
+
+  `}
 `;
 
 const CloseButton = styled.button`
@@ -34,6 +40,10 @@ const CloseButton = styled.button`
   background: transparent;
   border: 0;
   cursor: pointer;
+
+  &:focus {
+    outline: 2px solid ${colors.outline};
+  }
 
   svg {
     height: 20px;
@@ -48,20 +58,53 @@ const CloseButton = styled.button`
   }
 `;
 
-export default function Modal({ isOpen, onClose, children }) {
-  if (isOpen)
+export default function Modal({ isOpen, onClose, children, width, height }) {
+  const ref = useRef()
+  useClickOutside(ref, onClose)
     return (
       <AnimatePresence>
-        <Overlay>
-          <Content>
-            <CloseButton onClick={onClose}>
-              <FaTimes />
-            </CloseButton>
-            {children}
-          </Content>
-        </Overlay>
+      {
+	isOpen && (
+	  <Overlay variants={overlayVariants} initial="closed" animate="open" exit="exit">
+	    <Content variants={contentVariants} ref={ref} $width={width} $height={height}>
+	      <CloseButton onClick={onClose}>
+		<FaTimes />
+	      </CloseButton>
+	      {children}
+	    </Content>
+	  </Overlay>
+	)
+      }
       </AnimatePresence>
     );
 
-  return null;
+}
+
+const overlayVariants = {
+  closed: {
+    opacity: 0,
+  },
+  open: {
+    opacity:1
+  },
+  exit: {
+    opacity: 0
+  }
+}
+
+const contentVariants = {
+  closed: {
+    opacity:0,
+    scale: .8
+  },
+  open: {
+    opacity:1,
+    scale: 1,
+    transition: {
+      duration: 0.3,
+    }
+  },
+  exit: {
+    opacity:0
+  }
 }

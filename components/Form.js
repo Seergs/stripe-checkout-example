@@ -7,8 +7,10 @@ import { FaEnvelope, FaUser, FaDollarSign, FaReceipt } from "react-icons/fa";
 import { CardElement } from "@stripe/react-stripe-js";
 import useCheckout from "../hooks/useCheckout";
 import useFormValues from "../hooks/useFormValues";
+import useModal from '../hooks/useModal'
 import cogoToast from "cogo-toast";
 import Modal from "./Modal";
+import Success from './Success'
 
 const { colors } = theme;
 const { flex, flexRow } = mixins;
@@ -64,8 +66,9 @@ const Row = styled.div`
   gap: 1rem;
 `;
 
-export default function Form({ onPaymentSuccess }) {
+export default function Form() {
   const {
+    dispatch,
     createPayment,
     error,
     isLoading,
@@ -79,18 +82,30 @@ export default function Form({ onPaymentSuccess }) {
     amount: 10,
     description: "",
   });
+  const [isSucessModalOpen, setIsSuccessModalOpen] = useModal(false)
 
   useEffect(() => {
     if (isPaymentError) cogoToast.error(error);
   }, [error, isPaymentError]);
 
   useEffect(() => {
-    if (isPaymentSuccess) onPaymentSuccess({ values, payment });
+    if (isPaymentSuccess) setIsSuccessModalOpen(true);
   }, [isPaymentSuccess]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const error = validateData(values);
+    if (error) {
+      dispatch({ type: "error", payload: error });
+      return;
+    }
+
+    createPayment(values);
+  };
 
   return (
     <>
-      <FormWrapper onSubmit={(e) => createPayment({ e, data: values })}>
+      <FormWrapper onSubmit={handleSubmit}>
         <Title>Llena la siguiente información</Title>
         <Row>
           <Input type="email">
@@ -136,6 +151,12 @@ export default function Form({ onPaymentSuccess }) {
           {isLoading ? "Processing" : "Complete payment"}
         </Button>
       </FormWrapper>
+      <Modal isOpen={isSucessModalOpen} onClose={() => setIsSuccessModalOpen(false)}
+	width="400px"
+	height="400px"
+      >
+	<Success />
+      </Modal>
     </>
   );
 }
@@ -149,4 +170,22 @@ const CARD_ELEMENT_OPTIONS = {
       },
     },
   },
+};
+
+const validateData = ({ name, email, amount, description }) => {
+  if (!email.trim().length) {
+    return "El email no puede estar vacío";
+  }
+
+  if (!name.trim().length) {
+    return "El nombre no puede esta vacío";
+  }
+
+  if (isNaN(amount) || amount < 10)
+    return "La cantidad mínima a pagar son $10 MXN";
+
+  if (!description.trim().length) {
+    return "La descripción no puede estar vacía";
+  }
+  return null;
 };
