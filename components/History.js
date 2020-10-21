@@ -1,24 +1,48 @@
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 import theme from "../theme/theme";
-import { formatToHuman, formatDate } from "../utils/date";
+import { formatDate } from "../utils/date";
 import mixins from "../theme/mixins";
-import { FaReceipt } from "react-icons/fa";
+import { FaReceipt, FaRedo } from "react-icons/fa";
 
-const { flex, justifyBetween } = mixins;
+const { flex, justifyBetween, alignCenter } = mixins;
 const { colors } = theme;
 
 const Wrapper = styled.div`
   background-color: white;
-  width: 300px;
+  min-width: 400px;
   padding: 1rem 2rem;
 `;
 
-const Title = styled.h2`
+const Title = styled.div`
+  ${flex};
+  ${alignCenter};
+  margin-bottom: 2rem;
+`;
+
+const TitleText = styled.h2`
   font-weight: normal;
   color: ${colors.darkGray};
-  text-align: center;
-  margin-bottom: 2rem;
+  justify-self: center;
+`;
+
+const Redo = styled.button`
+  background-color: transparent;
+  border: 0;
+  justify-self: flex-end;
+  margin-left: auto;
+  cursor: pointer;
+  ${flex};
+  ${alignCenter};
+
+  &:hover svg {
+    transform: scale(1.1);
+  }
+
+  svg {
+    fill: ${colors.gray};
+    transition: all 0.2s ease-in-out;
+  }
 `;
 
 const Payment = styled.div`
@@ -30,10 +54,14 @@ const Payment = styled.div`
     background-color: transparent;
     border: 0;
     cursor: pointer;
+
+    &:hover svg {
+      fill: ${colors.gray};
+    }
   }
 
   svg {
-    fill: ${colors.lightGray};
+    fill: ${colors.lightestGray};
     height: 20px;
     width: 20px;
   }
@@ -42,9 +70,10 @@ const Payment = styled.div`
   }
 `;
 
-export default function History() {
+export default function History({ onReceipt }) {
   const [payments, setPayments] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [reload, setReload] = useState(false);
 
   useEffect(() => {
     async function getPayments() {
@@ -57,18 +86,23 @@ export default function History() {
     }
 
     getPayments();
-  }, []);
+  }, [reload]);
 
   return (
     <Wrapper>
-      <Title>History</Title>
+      <Title>
+        <TitleText>History</TitleText>
+        <Redo onClick={() => setReload((prev) => !prev)}>
+          <FaRedo />
+        </Redo>
+      </Title>
       {isLoading
         ? "Loading..."
         : payments.map((payment) => (
             <Payment key={payment.id}>
-              <span>{formatDate(Date(payment.date))}</span>
+              <span>{formatDate(new Date(payment.created * 1000))}</span>
               <span className="amount">{`$ ${payment.amount} MXN`}</span>
-              <button>
+              <button onClick={() => onReceipt(payment)}>
                 <FaReceipt />
               </button>
             </Payment>

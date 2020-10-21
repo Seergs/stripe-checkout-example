@@ -7,10 +7,10 @@ import { FaEnvelope, FaUser, FaDollarSign, FaReceipt } from "react-icons/fa";
 import { CardElement } from "@stripe/react-stripe-js";
 import useCheckout from "../hooks/useCheckout";
 import useFormValues from "../hooks/useFormValues";
-import useModal from '../hooks/useModal'
+import useModal from "../hooks/useModal";
 import cogoToast from "cogo-toast";
 import Modal from "./Modal";
-import Success from './Success'
+import Success from "./Success";
 
 const { colors } = theme;
 const { flex, flexRow } = mixins;
@@ -66,7 +66,7 @@ const Row = styled.div`
   gap: 1rem;
 `;
 
-export default function Form() {
+export default function Form({ onPaymentSuccess }) {
   const {
     dispatch,
     createPayment,
@@ -82,14 +82,13 @@ export default function Form() {
     amount: 10,
     description: "",
   });
-  const [isSucessModalOpen, setIsSuccessModalOpen] = useModal(false)
 
   useEffect(() => {
     if (isPaymentError) cogoToast.error(error);
   }, [error, isPaymentError]);
 
   useEffect(() => {
-    if (isPaymentSuccess) setIsSuccessModalOpen(true);
+    if (isPaymentSuccess) onPaymentSuccess();
   }, [isPaymentSuccess]);
 
   const handleSubmit = (e) => {
@@ -151,12 +150,6 @@ export default function Form() {
           {isLoading ? "Processing" : "Complete payment"}
         </Button>
       </FormWrapper>
-      <Modal isOpen={isSucessModalOpen} onClose={() => setIsSuccessModalOpen(false)}
-	width="400px"
-	height="400px"
-      >
-	<Success />
-      </Modal>
     </>
   );
 }
