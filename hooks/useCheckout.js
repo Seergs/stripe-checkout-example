@@ -50,7 +50,7 @@ const useCheckout = () => {
 
   async function createPaymentIntent(paymentData) {
     try {
-      const result = await fetch("/api/payment", {
+      const result = await fetch("/api/payments", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -62,6 +62,7 @@ const useCheckout = () => {
 
       return data.clientSecret;
     } catch (e) {
+      console.log(e);
       return null;
     }
   }

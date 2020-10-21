@@ -1,11 +1,17 @@
-import { useState } from "react";
 import theme from "../theme/theme";
 import styled from "styled-components";
 import Form from "../components/Form";
-import cogoToast from "cogo-toast";
-import useModal from "../hooks/useModal";
+import History from "../components/History";
+import mixins from "../theme/mixins";
+
+const { flex } = mixins;
 
 const { colors } = theme;
+
+const Container = styled.div`
+  ${flex};
+  column-gap: 2rem;
+`;
 
 const Title = styled.h1`
   color: ${colors.darkGray};
@@ -13,11 +19,13 @@ const Title = styled.h1`
 `;
 
 export default function Home() {
-
   return (
-    <div>
+    <>
       <Title>Checkout</Title>
-      <Form />
-    </div>
+      <Container>
+        <Form />
+        <History />
+      </Container>
+    </>
   );
 }
