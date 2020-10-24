@@ -76,6 +76,12 @@ const Payment = styled.div`
   }
 `;
 
+const Skeleton = styled.div`
+  height: 23px;
+  background: ${colors.lightestGray};
+  margin: 5px 0;
+`;
+
 export default function History({ onReceipt }) {
   const [payments, setPayments] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -103,20 +109,26 @@ export default function History({ onReceipt }) {
         </Redo>
       </Title>
       <Searchbar onReceipt={onReceipt} />
-      {isLoading
-        ? "Loading..."
-        : payments.map((payment) => (
-            <Payment key={payment.id}>
-              <span>{formatDate(new Date(payment.created * 1000))}</span>
-              <span className="amount">{`$ ${payment.amount} MXN`}</span>
-              <button onClick={() => onReceipt(payment)}>
-                <FaReceipt />
-              </button>
-              <a href={`https://dashboard.stripe.com/payments/${payment.id}`}>
-                <FaExternalLinkAlt class="external" />
-              </a>
-            </Payment>
-          ))}
+      {isLoading ? (
+        <>
+          <Skeleton />
+          <Skeleton />
+          <Skeleton />
+        </>
+      ) : (
+        payments.map((payment) => (
+          <Payment key={payment.id}>
+            <span>{formatDate(new Date(payment.created * 1000))}</span>
+            <span className="amount">{`$ ${payment.amount} MXN`}</span>
+            <button onClick={() => onReceipt(payment)}>
+              <FaReceipt />
+            </button>
+            <a href={`https://dashboard.stripe.com/payments/${payment.id}`}>
+              <FaExternalLinkAlt class="external" />
+            </a>
+          </Payment>
+        ))
+      )}
     </Wrapper>
   );
 }
