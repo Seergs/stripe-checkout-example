@@ -3,7 +3,7 @@ import styled from "styled-components";
 import theme from "../theme/theme";
 import { formatDate } from "../utils/date";
 import mixins from "../theme/mixins";
-import { FaReceipt, FaRedo } from "react-icons/fa";
+import { FaReceipt, FaRedo, FaExternalLinkAlt } from "react-icons/fa";
 
 const { flex, justifyBetween, alignCenter } = mixins;
 const { colors } = theme;
@@ -64,6 +64,11 @@ const Payment = styled.div`
     fill: ${colors.lightestGray};
     height: 20px;
     width: 20px;
+
+    &.external {
+      height: 15px;
+      width: 15px;
+    }
   }
   .amount {
     font-weight: bold;
@@ -105,6 +110,9 @@ export default function History({ onReceipt }) {
               <button onClick={() => onReceipt(payment)}>
                 <FaReceipt />
               </button>
+              <a href={`https://dashboard.stripe.com/payments/${payment.id}`}>
+                <FaExternalLinkAlt class="external" />
+              </a>
             </Payment>
           ))}
     </Wrapper>
