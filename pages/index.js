@@ -26,8 +26,6 @@ const Title = styled.h1`
 export default function Home() {
   const { openModal, setOpenModal, data, setData } = useModal();
 
-  console.log(data);
-
   function onPaymentSuccess() {
     setOpenModal("success");
   }

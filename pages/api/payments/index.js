@@ -4,8 +4,6 @@ const API_SECRET = process.env.STRIPE_API_SECRET_TEST;
 
 const stripe = new Stripe(API_SECRET);
 
-const calculateAmount = (current) => current * 100;
-
 const handler = nc()
   .get(async (req, res) => {
     let payments;
@@ -15,7 +13,7 @@ const handler = nc()
       payments = allPayments.data.map((payment) => {
         return {
           id: payment.id,
-          amount: payment.amount,
+          amount: payment.amount / 100,
           created: payment.created,
           description: payment.description,
           email: payment.receipt_email,
@@ -31,7 +29,7 @@ const handler = nc()
   .post(async (req, res) => {
     const { body } = req;
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: calculateAmount(body.amount),
+      amount: body.amount * 100,
       currency: "mxn",
       receipt_email: body.email,
       description: body.description,

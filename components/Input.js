@@ -1,5 +1,5 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import theme from "../theme/theme";
 import mixins from "../theme/mixins";
 const { colors } = theme;
@@ -16,7 +16,9 @@ const Container = styled.div`
       ? "300px"
       : type === "amount"
       ? "150px"
-      : "800px"};
+      : type === "description"
+      ? "800px"
+      : "100%"};
 `;
 
 const InputContainer = styled.div`
@@ -26,6 +28,13 @@ const InputContainer = styled.div`
   ${alignCenter};
   padding: 0 14px;
   box-shadow: 0px 1px 3px 0px rgba(230, 235, 241, 0.25);
+  border-radius: 4px;
+
+  ${({ isSearchbar }) =>
+    isSearchbar &&
+    css`
+      box-shadow: 0 1px 3px hsla(0, 0%, 0%, 0.15);
+    `}
 
   svg {
     fill: black;
@@ -47,7 +56,6 @@ const Label = styled.label`
 const Field = styled.input`
   height: 40px;
   border: 0;
-  border-radius: 4px;
   width: 100%;
   font-size: 15px;
   &::placeholder {
@@ -75,7 +83,7 @@ Input.Label = function ({ children }) {
 
 Input.Field = function ({ placeholder, icon, type, value, handleChange }) {
   return (
-    <InputContainer>
+    <InputContainer isSearchbar={type === "search"}>
       {icon}
       <Field
         placeholder={placeholder}
@@ -85,7 +93,9 @@ Input.Field = function ({ placeholder, icon, type, value, handleChange }) {
             ? "email"
             : type === "name" || type === "description"
             ? "text"
-            : "number"
+            : type === "amount"
+            ? "number"
+            : "text"
         }
         min={type === "amount" ? "10" : null}
         value={value}

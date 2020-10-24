@@ -3,21 +3,22 @@ import styled from "styled-components";
 import theme from "../theme/theme";
 import { formatDate } from "../utils/date";
 import mixins from "../theme/mixins";
-import { FaReceipt, FaRedo, FaExternalLinkAlt } from "react-icons/fa";
+import { FaReceipt, FaRedo, FaExternalLinkAlt, FaSearch } from "react-icons/fa";
+import Searchbar from "./Searchbar";
 
 const { flex, justifyBetween, alignCenter } = mixins;
 const { colors } = theme;
 
 const Wrapper = styled.div`
   background-color: white;
-  min-width: 400px;
+  width: 400px;
+  height: 500px;
   padding: 1rem 2rem;
 `;
 
 const Title = styled.div`
   ${flex};
   ${alignCenter};
-  margin-bottom: 2rem;
 `;
 
 const TitleText = styled.h2`
@@ -101,6 +102,7 @@ export default function History({ onReceipt }) {
           <FaRedo />
         </Redo>
       </Title>
+      <Searchbar onReceipt={onReceipt} />
       {isLoading
         ? "Loading..."
         : payments.map((payment) => (
