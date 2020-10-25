@@ -3,10 +3,10 @@ import styled from "styled-components";
 import theme from "../theme/theme";
 import { formatDate } from "../utils/date";
 import mixins from "../theme/mixins";
-import { FaReceipt, FaRedo, FaExternalLinkAlt, FaSearch } from "react-icons/fa";
+import { FaReceipt, FaRedo, FaExternalLinkAlt } from "react-icons/fa";
 import Searchbar from "./Searchbar";
 
-const { flex, justifyBetween, alignCenter } = mixins;
+const { flex, justifyBetween, alignCenter, justifyCenter } = mixins;
 const { colors } = theme;
 
 const Wrapper = styled.div`
@@ -47,8 +47,8 @@ const Redo = styled.button`
 `;
 
 const Payment = styled.div`
-  ${flex};
-  ${justifyBetween};
+  display: grid;
+  grid-template-columns: 2fr 2fr 1fr 1fr;
   margin: 0.7rem 0;
 
   button {
@@ -59,6 +59,10 @@ const Payment = styled.div`
     &:hover svg {
       fill: ${colors.gray};
     }
+  }
+
+  a {
+    text-align: center;
   }
 
   svg {
@@ -74,12 +78,6 @@ const Payment = styled.div`
   .amount {
     font-weight: bold;
   }
-`;
-
-const Skeleton = styled.div`
-  height: 23px;
-  background: ${colors.lightestGray};
-  margin: 5px 0;
 `;
 
 export default function History({ onReceipt }) {
@@ -110,11 +108,7 @@ export default function History({ onReceipt }) {
       </Title>
       <Searchbar onReceipt={onReceipt} />
       {isLoading ? (
-        <>
-          <Skeleton />
-          <Skeleton />
-          <Skeleton />
-        </>
+        <div>Loading...</div>
       ) : (
         payments.map((payment) => (
           <Payment key={payment.id}>
